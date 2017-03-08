@@ -201,6 +201,13 @@ fn exists(parser: &mut ParsedCommand, db: &mut Database, dbindex: usize) -> Resp
         Some(_) => 1,
         None => 0,
     })
+
+}
+fn echo(parser: &mut ParsedCommand) -> Response {
+    validate_arguments_exact!(parser, 2);
+    let key = try_validate!(parser.get_vec(1), "Invalid key");
+    return Response::Data(parser.to_owned().get_command().get_vec(1).unwrap());
+    // "none".to_owned().into_bytes()
 }
 
 fn del(parser: &mut ParsedCommand, db: &mut Database, dbindex: usize) -> Response {
@@ -409,6 +416,8 @@ fn get(parser: &mut ParsedCommand, db: &Database, dbindex: usize) -> Response {
     let key = try_validate!(parser.get_vec(1), "Invalid key");
     generic_get(db, dbindex, key, true)
 }
+
+
 
 fn mget(parser: &mut ParsedCommand, db: &Database, dbindex: usize) -> Response {
     validate!(parser.argv.len() >= 2, "Wrong number of parameters");
@@ -2764,6 +2773,8 @@ fn execute_command(parser: &mut ParsedCommand,
             monitor(parser, db, client.rawsender.clone())
         }
         "info" => info(parser, db),
+        "echo" => echo(parser),
+        // "hset" => hset(parser, db);
         cmd => Response::Error(format!("ERR unknown command \"{}\"", cmd).to_owned()),
     });
 }
